@@ -21,7 +21,16 @@
 | AI03 | Thiếu Gemini API Key | Hiển thị thông báo cấu hình | Đạt - Hiển thị thông báo chưa cấu hình Gemini API Key |
 | AI04 | Gemini API từ chối yêu cầu (API Key giả) | Hiển thị thông báo lỗi phù hợp | Đạt - Hiển thị Gemini API gặp lỗi HTTP 400, ứng dụng vẫn hoạt động |
 | AI05 | Phiếu đang sửa chữa | AI không khẳng định đã hoàn thành | Đạt - AI xác nhận xe đang sửa chữa, chưa có công việc nào được xác nhận hoàn thành |
-
 ## Kết luận
 
-Cập nhật kết quả thực tế sau khi chạy từng trường hợp kiểm thử.
+Đã thực hiện và ghi nhận kết quả đạt cho 12 trường hợp kiểm thử:
+- KT2: 7/7 trường hợp đạt.
+- KT3: 5/5 trường hợp đạt.
+
+Các chức năng quản lý khách hàng, xe, lịch hẹn, phiếu sửa chữa và lịch sử sửa chữa hoạt động theo các trường hợp đã kiểm thử.
+
+Gemini AI có thể tóm tắt lịch sử sửa chữa dựa trên dữ liệu xe, xử lý trường hợp không có lịch sử, thiếu API Key và API trả lỗi HTTP 400.
+
+Hệ thống cũng thể hiện đúng trạng thái phiếu đang sửa chữa, không tự khẳng định công việc đã hoàn thành.
+
+Hạn chế: Chưa kiểm thử riêng trường hợp API không phản hồi (timeout) và các tình huống tải lớn.
