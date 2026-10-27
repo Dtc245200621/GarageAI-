@@ -1,0 +1,225 @@
+﻿
+@model List<GarageAI.Models.RepairOrder>
+
+@{
+    ViewData["Title"] = "Quản lý sửa chữa";
+}
+
+<h2>🔧 Quản lý phiếu sửa chữa</h2>
+
+<a asp-controller="RepairOrders"
+   asp-action="Create"
+   class="btn btn-primary mb-3">
+    + Thêm phiếu sửa chữa
+</a>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="card p-3 mt-3 mb-3">
+    <h5>Tìm kiếm và lọc phiếu sửa chữa</h5>
+
+    <form asp-controller="RepairOrders"
+          asp-action="Index"
+          method="get">
+
+        <div class="row g-2">
+            <div class="col-md-6">
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Biển số hoặc tên khách hàng" />
+            </div>
+
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    @foreach (var s in new[]
+                    {
+                        new { Value = "MoiTiepNhan", Text = "Mới tiếp nhận" },
+                        new { Value = "DangSuaChua", Text = "Đang sửa chữa" },
+                        new { Value = "HoanThanh", Text = "Hoàn thành" },
+                        new { Value = "DaHuy", Text = "Đã hủy" }
+                    })
+                    {
+                        if ((string?)ViewBag.Status == s.Value)
+                        {
+                            <option value="@s.Value" selected>@s.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@s.Value">@s.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary mt-2 w-100">
+            Xóa bộ lọc
+        </a>
+    </form>
+</div>
+
+
+<div class="card p-3 mt-3">
+    <h5>Danh sách phiếu sửa chữa</h5>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Biển số xe</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày tạo</th>
+                    <th>Tình trạng xe</th>
+                    <th>Kỹ thuật viên</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Vehicle?.LicensePlate</td>
+                        <td>@item.Vehicle?.Customer?.FullName</td>
+                        <td>
+                            @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>@item.Description</td>
+                        <td>@item.TechnicianName</td>
+                        <td>
+                            @switch (item.Status)
+                            {
+                                case "MoiTiepNhan":
+                                    <span class="badge bg-warning text-dark">
+                                        Mới tiếp nhận
+                                    </span>
+                                    break;
+                                case "DangSuaChua":
+                                    <span class="badge bg-primary">
+                                        Đang sửa chữa
+                                    </span>
+                                    break;
+                                case "HoanThanh":
+                                    <span class="badge bg-success">
+                                        Hoàn thành
+                                    </span>
+                                    break;
+                                case "DaHuy":
+                                    <span class="badge bg-danger">
+                                        Đã hủy
+                                    </span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">
+                                        @item.Status
+                                    </span>
+                                    break;
+                            }
+                        </td>
+                        
+<td>
+    @if (item.Status != "DaHuy")
+    {
+        <a asp-action="Edit"
+           asp-route-id="@item.Id"
+           class="btn btn-sm btn-warning">
+            Sửa
+        </a>
+    }
+    
+@if (item.Status == "MoiTiepNhan")
+{
+    <form asp-action="ChangeStatus"
+          method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id"
+               value="@item.Id" />
+        <input type="hidden" name="status"
+               value="DangSuaChua" />
+
+        <button type="submit"
+                class="btn btn-sm btn-primary">
+            Bắt đầu sửa
+        </button>
+    </form>
+
+    <form asp-action="ChangeStatus"
+          method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id"
+               value="@item.Id" />
+        <input type="hidden" name="status"
+               value="DaHuy" />
+
+        <button type="submit"
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Bạn chắc chắn muốn hủy phiếu?')">
+            Hủy
+        </button>
+    </form>
+}
+
+@if (item.Status == "DangSuaChua")
+{
+    <form asp-action="ChangeStatus"
+          method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id"
+               value="@item.Id" />
+        <input type="hidden" name="status"
+               value="HoanThanh" />
+
+        <button type="submit"
+                class="btn btn-sm btn-success">
+            Hoàn thành
+        </button>
+    </form>
+}
+
+<a asp-action="History"
+   asp-route-vehicleId="@item.VehicleId"
+   class="btn btn-sm btn-info">
+    Lịch sử
+</a>
+
+
+</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Chưa có phiếu sửa chữa nào.
+        </div>
+    }
+</div>

@@ -1,0 +1,58 @@
+﻿
+@model GarageAI.Models.Vehicle
+
+<h2>Chỉnh sửa thông tin xe</h2>
+
+<div class="card p-4 mt-3">
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All"
+             class="text-danger"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Biển số xe</label>
+            <input asp-for="LicensePlate"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Hãng xe</label>
+            <input asp-for="Brand"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Dòng xe</label>
+            <input asp-for="Model"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Năm sản xuất</label>
+            <input asp-for="Year"
+                   type="number"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Chủ xe</label>
+            <select asp-for="CustomerId"
+                    asp-items="ViewBag.Customers"
+                    class="form-select">
+                <option value="">-- Chọn khách hàng --</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            Lưu thay đổi
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Quay lại
+        </a>
+    </form>
+</div>

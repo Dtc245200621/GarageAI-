@@ -1,0 +1,60 @@
+﻿
+@model GarageAI.Models.RepairOrder
+
+@{
+    ViewData["Title"] = "Sửa phiếu sửa chữa";
+}
+
+<h2>✏️ Sửa phiếu sửa chữa</h2>
+
+<div class="card p-4 mt-3">
+    <form asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All"
+             class="text-danger"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Chọn xe</label>
+            <select asp-for="VehicleId"
+                    asp-items="ViewBag.Vehicles"
+                    class="form-select">
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Tình trạng xe</label>
+            <textarea asp-for="Description"
+                      class="form-control"
+                      rows="3"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Kỹ thuật viên</label>
+            <input asp-for="TechnicianName"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Ghi chú sửa chữa</label>
+            <textarea asp-for="RepairNotes"
+                      class="form-control"
+                      rows="3"></textarea>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Lưu thay đổi
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Quay lại
+        </a>
+    </form>
+</div>

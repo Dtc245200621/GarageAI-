@@ -1,0 +1,22 @@
+﻿
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# .NET build
+bin/
+obj/
+
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Secrets
+.env
+.env.*
+appsettings.Development.json
+secrets.json
