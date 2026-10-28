@@ -15,7 +15,19 @@
    asp-action="Index">
     🔧 Quản lý sửa chữa
 </a>
+<a asp-controller="GarageServices" asp-action="Index">
+    🔧 Quản lý dịch vụ
+</a>
 
-<span class="nav-link text-secondary">🔧 Sửa chữa (sắp triển khai)</span><span class="nav-link text-secondary">🤖 Trợ lý AI (sắp triển khai)</span></nav></aside><main class="flex-grow-1 p-4 p-md-5">@RenderBody()</main></div></body></html>
+<a asp-controller="Parts" asp-action="Index">
+    📦 Quản lý phụ tùng
+</a>
+
+<a asp-controller="GarageAi"
+   asp-action="Index"
+   class="nav-link">
+    🤖 Trợ lý AI
+</a>
+</nav></aside><main class="flex-grow-1 p-4 p-md-5">@RenderBody()</main></div></body></html>
     
     

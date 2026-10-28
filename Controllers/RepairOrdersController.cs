@@ -5,9 +5,11 @@ using GarageAI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GarageAI.Controllers;
 
+[Authorize(Roles = "Admin,Employee")]
 public class RepairOrdersController : Controller
 {
     private readonly GarageDbContext _db;
@@ -275,5 +277,273 @@ public class RepairOrdersController : Controller
 
         return RedirectToAction(nameof(History), new { vehicleId });
     }
+    [HttpGet]
+    public async Task<IActionResult> Services(int id)
+    {
+        var order = await _db.RepairOrders
+            .Include(r => r.Vehicle)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (order == null)
+            return NotFound();
+
+        var services = await _db.RepairOrderServices
+            .Include(x => x.GarageService)
+            .Where(x => x.RepairOrderId == id)
+            .ToListAsync();
+
+        ViewBag.Order = order;
+        ViewBag.AvailableServices = await _db.GarageServices
+            .OrderBy(s => s.Name)
+            .ToListAsync();
+
+        return View(services);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddService(
+        int repairOrderId, int garageServiceId)
+    {
+        var order = await _db.RepairOrders
+            .FindAsync(repairOrderId);
+
+        if (order == null)
+            return NotFound();
+
+        if (order.Status == "DaHuy" ||
+            order.Status == "HoanThanh")
+        {
+            TempData["Error"] =
+                "Không thể thêm dịch vụ vào phiếu đã đóng.";
+            return RedirectToAction(nameof(Services),
+                new { id = repairOrderId });
+        }
+
+        var service = await _db.GarageServices
+            .FindAsync(garageServiceId);
+
+        if (service == null)
+        {
+            TempData["Error"] = "Dịch vụ không tồn tại.";
+            return RedirectToAction(nameof(Services),
+                new { id = repairOrderId });
+        }
+
+        bool exists = await _db.RepairOrderServices
+            .AnyAsync(x =>
+                x.RepairOrderId == repairOrderId &&
+                x.GarageServiceId == garageServiceId);
+
+        if (exists)
+        {
+            TempData["Error"] =
+                "Dịch vụ này đã được thêm vào phiếu.";
+            return RedirectToAction(nameof(Services),
+                new { id = repairOrderId });
+        }
+
+        var item = new RepairOrderService
+        {
+            RepairOrderId = repairOrderId,
+            GarageServiceId = garageServiceId,
+            UnitPrice = service.Price
+        };
+
+        _db.RepairOrderServices.Add(item);
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Thêm dịch vụ thành công.";
+
+        return RedirectToAction(nameof(Services),
+            new { id = repairOrderId });
+    }
+    [HttpGet]
+    public async Task<IActionResult> Parts(int id)
+    {
+        var order = await _db.RepairOrders
+            .Include(r => r.Vehicle)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (order == null)
+            return NotFound();
+
+        var parts = await _db.RepairOrderParts
+            .Include(x => x.Part)
+            .Where(x => x.RepairOrderId == id)
+            .ToListAsync();
+
+        ViewBag.Order = order;
+
+        ViewBag.AvailableParts = await _db.Parts
+            .OrderBy(p => p.Name)
+            .ToListAsync();
+
+        return View(parts);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddPart(
+        int repairOrderId, int partId, int quantity)
+    {
+        IActionResult Back() => RedirectToAction(
+            nameof(Parts), new { id = repairOrderId });
+
+        if (quantity <= 0)
+        {
+            TempData["Error"] = "Số lượng phải lớn hơn 0.";
+            return Back();
+        }
+
+        await using var transaction =
+            await _db.Database.BeginTransactionAsync();
+
+        var order = await _db.RepairOrders
+            .FindAsync(repairOrderId);
+
+        if (order == null)
+            return NotFound();
+
+        if (order.Status == "DaHuy" ||
+            order.Status == "HoanThanh")
+        {
+            TempData["Error"] =
+                "Không thể thêm phụ tùng vào phiếu đã đóng.";
+            return Back();
+        }
+
+        var part = await _db.Parts.FindAsync(partId);
+
+        if (part == null)
+        {
+            TempData["Error"] = "Phụ tùng không tồn tại.";
+            return Back();
+        }
+
+        if (part.StockQuantity < quantity)
+        {
+            TempData["Error"] =
+                "Số lượng phụ tùng vượt quá tồn kho.";
+            return Back();
+        }
+
+        var existing = await _db.RepairOrderParts
+            .FirstOrDefaultAsync(x =>
+                x.RepairOrderId == repairOrderId &&
+                x.PartId == partId);
+
+        if (existing == null)
+        {
+            _db.RepairOrderParts.Add(new RepairOrderPart
+            {
+                RepairOrderId = repairOrderId,
+                PartId = partId,
+                Quantity = quantity,
+                UnitPrice = part.Price
+            });
+        }
+        else
+        {
+            existing.Quantity += quantity;
+        }
+
+        part.StockQuantity -= quantity;
+
+        await _db.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        TempData["Success"] = "Thêm phụ tùng thành công.";
+        return Back();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemovePart(int id)
+    {
+        var item = await _db.RepairOrderParts
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item == null)
+            return NotFound();
+
+        int repairOrderId = item.RepairOrderId;
+
+        await using var transaction =
+            await _db.Database.BeginTransactionAsync();
+
+        var order = await _db.RepairOrders
+            .FindAsync(repairOrderId);
+
+        if (order == null)
+            return NotFound();
+
+        if (order.Status == "HoanThanh" ||
+            order.Status == "DaHuy")
+        {
+            TempData["Error"] =
+                "Không thể xóa phụ tùng khỏi phiếu đã đóng.";
+
+            return RedirectToAction(nameof(Parts),
+                new { id = repairOrderId });
+        }
+
+        var part = await _db.Parts.FindAsync(item.PartId);
+
+        if (part == null)
+            return NotFound();
+
+        part.StockQuantity += item.Quantity;
+
+        _db.RepairOrderParts.Remove(item);
+
+        await _db.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        TempData["Success"] =
+            "Xóa phụ tùng và hoàn trả tồn kho thành công.";
+
+        return RedirectToAction(nameof(Parts),
+            new { id = repairOrderId });
+    }
+
+
+    [HttpGet]
+    public async Task<IActionResult> TotalCost(int id)
+    {
+        var order = await _db.RepairOrders
+            .Include(r => r.Vehicle)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (order == null)
+            return NotFound();
+
+        // Lấy dữ liệu dịch vụ từ SQLite
+        var services = await _db.RepairOrderServices
+            .Where(x => x.RepairOrderId == id)
+            .ToListAsync();
+
+        // Lấy dữ liệu phụ tùng từ SQLite
+        var parts = await _db.RepairOrderParts
+            .Where(x => x.RepairOrderId == id)
+            .ToListAsync();
+
+        // Tính tổng bằng C# sau khi lấy dữ liệu
+        decimal serviceTotal = services.Sum(x => x.UnitPrice);
+
+        decimal partTotal = parts.Sum(
+            x => x.Quantity * x.UnitPrice);
+
+        decimal grandTotal = serviceTotal + partTotal;
+
+        ViewBag.Order = order;
+        ViewBag.ServiceTotal = serviceTotal;
+        ViewBag.PartTotal = partTotal;
+        ViewBag.GrandTotal = grandTotal;
+
+        return View();
+    }
+
+
 
 }

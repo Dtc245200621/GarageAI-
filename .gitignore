@@ -20,3 +20,8 @@ obj/
 .env.*
 appsettings.Development.json
 secrets.json
+
+# Temporary files
+*-preview.sql
+repair-links-only.sql
+startup-error.txt

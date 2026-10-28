@@ -1,0 +1,107 @@
+﻿
+@model List<GarageAI.Models.RepairOrderService>
+
+@{
+    ViewData["Title"] = "Dịch vụ phiếu sửa chữa";
+    var order = (GarageAI.Models.RepairOrder)ViewBag.Order;
+    var availableServices =
+        (List<GarageAI.Models.GarageService>)
+        ViewBag.AvailableServices;
+
+    var total = Model.Sum(x => x.UnitPrice);
+}
+
+<h2>Quản lý dịch vụ phiếu sửa chữa #@order.Id</h2>
+
+<p>
+    <strong>Biển số xe:</strong>
+    @order.Vehicle?.LicensePlate
+</p>
+
+<div class="card p-3 mb-3">
+    <h5>Danh sách dịch vụ đã thêm</h5>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Dịch vụ</th>
+                <th>Đơn giá</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.GarageService?.Name</td>
+                    <td>@item.UnitPrice.ToString("N0") VNĐ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h5>Tổng tiền: @total.ToString("N0") VNĐ</h5>
+</div>
+
+
+<h5>Danh mục dịch vụ hiện có</h5>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên dịch vụ</th>
+            <th>Đơn giá</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var service in availableServices)
+        {
+            <tr>
+                <td>@service.Name</td>
+                <td>@service.Price.ToString("N0") VNĐ</td>
+                <td>
+                    @if (order.Status != "DaHuy" &&
+                         order.Status != "HoanThanh")
+                    {
+                        <form asp-action="AddService"
+                              method="post">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="repairOrderId"
+                                   value="@order.Id" />
+
+                            <input type="hidden"
+                                   name="garageServiceId"
+                                   value="@service.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-success btn-sm">
+                                Thêm vào phiếu
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<a asp-action="Index" class="btn btn-secondary mt-3">
+    Quay lại
+</a>

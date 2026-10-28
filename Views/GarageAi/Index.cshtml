@@ -1,0 +1,97 @@
+﻿@{
+    ViewData["Title"] = "Trợ lý AI Garage";
+}
+
+<h2 class="mb-4">🤖 Trợ lý AI Garage</h2>
+
+<div class="card p-4 mb-4">
+    <h4>Gợi ý báo giá sửa chữa</h4>
+
+    <form asp-controller="GarageAi"
+          asp-action="Index"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="actionType"
+               value="quotation" />
+
+        <div class="mb-3">
+            <label class="form-label">Tình trạng xe</label>
+            <textarea name="problem"
+                      class="form-control"
+                      rows="3"
+                      required>@ViewBag.Problem</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                Danh mục dịch vụ và giá
+            </label>
+
+            <textarea name="services"
+                      class="form-control"
+                      rows="3"
+                      required>@ViewBag.Services</textarea>
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            AI gợi ý báo giá
+        </button>
+    </form>
+</div>
+
+<div class="card p-4 mb-4">
+    <h4>Giải thích dịch vụ sửa chữa</h4>
+
+    <form asp-controller="GarageAi"
+          asp-action="Index"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="actionType"
+               value="explain" />
+
+        <div class="mb-3">
+            <label class="form-label">Tên dịch vụ</label>
+            <input type="text"
+                   name="serviceName"
+                   value="@ViewBag.ServiceName"
+                   class="form-control"
+                   required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Mô tả dịch vụ</label>
+            <textarea name="description"
+                      class="form-control"
+                      rows="3"
+                      required>@ViewBag.Description</textarea>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            AI giải thích dịch vụ
+        </button>
+    </form>
+</div>
+
+@if (ViewBag.Result != null)
+{
+    <div class="card p-4 border-primary">
+        <h4>Kết quả từ trợ lý AI</h4>
+
+        <div style="white-space: pre-wrap;">
+            @ViewBag.Result
+        </div>
+
+        <div class="alert alert-warning mt-3">
+            Nội dung do AI đề xuất chỉ mang tính tham khảo.
+            Cần kiểm tra thực tế trước khi sửa chữa.
+        </div>
+    </div>
+}

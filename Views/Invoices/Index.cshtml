@@ -1,0 +1,67 @@
+﻿
+@model List<GarageAI.Models.Invoice>
+
+@{
+    ViewData["Title"] = "Quản lý hóa đơn";
+}
+
+<h2>Quản lý hóa đơn</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Mã hóa đơn</th>
+            <th>Phiếu sửa chữa</th>
+            <th>Biển số xe</th>
+            <th>Ngày lập</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>#@item.RepairOrderId</td>
+                <td>@item.RepairOrder?.Vehicle?.LicensePlate</td>
+                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.TotalAmount.ToString("N0") VNĐ</td>
+                <td>
+                    @(item.PaymentStatus == "DaThanhToan"
+                        ? "Đã thanh toán"
+                        : "Chưa thanh toán")
+                </td>
+                <td>
+                    @if (item.PaymentStatus != "DaThanhToan")
+                    {
+                        <form asp-action="Pay" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.Id" />
+                            <button type="submit"
+                                    class="btn btn-success btn-sm">
+                                Xác nhận thanh toán
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="RepairOrders"
+   asp-action="Index"
+   class="btn btn-secondary">
+    Quay lại
+</a>

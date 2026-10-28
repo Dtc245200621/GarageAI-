@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewData["Title"] = "Tổng chi phí sửa chữa";
+
+    var order = (GarageAI.Models.RepairOrder)ViewBag.Order;
+    decimal serviceTotal = (decimal)ViewBag.ServiceTotal;
+    decimal partTotal = (decimal)ViewBag.PartTotal;
+    decimal grandTotal = (decimal)ViewBag.GrandTotal;
+}
+
+<h2>Tổng chi phí phiếu sửa chữa #@order.Id</h2>
+
+<p>
+    <strong>Biển số xe:</strong>
+    @order.Vehicle?.LicensePlate
+</p>
+
+<div class="card p-4 mt-3">
+    <h4>Chi tiết chi phí</h4>
+
+    <table class="table table-bordered mt-3">
+        <tbody>
+            <tr>
+                <th>Tiền dịch vụ</th>
+                <td>@serviceTotal.ToString("N0") VNĐ</td>
+            </tr>
+
+            <tr>
+                <th>Tiền phụ tùng</th>
+                <td>@partTotal.ToString("N0") VNĐ</td>
+            </tr>
+
+            <tr class="table-success">
+                <th>TỔNG CỘNG</th>
+                <th>@grandTotal.ToString("N0") VNĐ</th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<a asp-controller="RepairOrders"
+   asp-action="Index"
+   class="btn btn-secondary mt-3">
+    Quay lại
+</a>
