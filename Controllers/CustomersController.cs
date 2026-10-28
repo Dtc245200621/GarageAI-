@@ -2,7 +2,11 @@ using GarageAI.Data;
 using GarageAI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+
 namespace GarageAI.Controllers;
+
+[Authorize(Roles = "Admin,Employee")]
 public class CustomersController(GarageDbContext db) : Controller {
  public async Task<IActionResult> Index(string? q) {
   var customers = db.Customers.AsNoTracking().AsQueryable();

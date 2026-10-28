@@ -2,9 +2,11 @@
 using GarageAI.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GarageAI.Controllers;
 
+[Authorize(Roles = "Admin,Employee")]
 public class AppointmentsController : Controller
 {
     private readonly GarageDbContext _db;

@@ -1,0 +1,89 @@
+﻿
+@model IEnumerable<GarageAI.Models.Part>
+
+@{
+    ViewData["Title"] = "Quản lý phụ tùng";
+}
+
+<h2>🔧 Quản lý phụ tùng</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Thêm phụ tùng
+</a>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<form method="get" asp-action="Index" class="mb-3">
+    <div class="input-group">
+        <input type="text"
+               name="search"
+               value="@ViewBag.Search"
+               class="form-control"
+               placeholder="Nhập mã hoặc tên phụ tùng..." />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Xóa lọc
+        </a>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Mã phụ tùng</th>
+            <th>Tên phụ tùng</th>
+            <th>Đơn giá</th>
+            <th>Tồn kho</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var part in Model)
+        {
+            <tr>
+                <td>@part.Id</td>
+                <td>@part.Code</td>
+                <td>@part.Name</td>
+                <td>@part.Price.ToString("N0") VNĐ</td>
+                <td>@part.StockQuantity</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@part.Id"
+                       class="btn btn-warning btn-sm">
+                        Sửa
+                    </a>
+
+                    <form asp-action="Delete"
+                          asp-route-id="@part.Id"
+                          method="post"
+                          class="d-inline"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa phụ tùng này?');">
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-danger btn-sm">
+                            Xóa
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

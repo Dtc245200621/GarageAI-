@@ -1,0 +1,90 @@
+﻿
+@model List<GarageAI.Models.GarageService>
+
+@{
+    ViewData["Title"] = "Quản lý dịch vụ";
+}
+
+<h2>🔧 Quản lý dịch vụ sửa chữa</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Thêm dịch vụ
+</a>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<form method="get" asp-action="Index" class="mb-3">
+    <div class="input-group">
+        <input type="text"
+               name="search"
+               value="@ViewBag.Search"
+               class="form-control"
+               placeholder="Nhập tên dịch vụ cần tìm..." />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Xóa lọc
+        </a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Tên dịch vụ</th>
+                <th>Mô tả</th>
+                <th>Đơn giá</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var service in Model)
+            {
+                <tr>
+                    <td>@service.Id</td>
+                    <td>@service.Name</td>
+                    <td>@service.Description</td>
+                    <td>
+                        @service.Price.ToString("N0") VNĐ
+                    </td>
+                    <td>
+                        <a asp-action="Edit"
+                           asp-route-id="@service.Id"
+                           class="btn btn-warning btn-sm">
+                            Sửa
+                        </a>
+
+                        <form asp-action="Delete"
+                              asp-route-id="@service.Id"
+                              method="post"
+                              class="d-inline"
+                              onsubmit="return confirm('Bạn chắc chắn muốn xóa dịch vụ này?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="btn btn-danger btn-sm">
+                                Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Chưa có dịch vụ nào phù hợp.
+    </div>
+}

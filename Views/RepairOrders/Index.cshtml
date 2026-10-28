@@ -206,6 +206,40 @@
    class="btn btn-sm btn-info">
     Lịch sử
 </a>
+                            <a asp-controller="GarageAi"
+                               asp-action="SummarizeHistory"
+                               asp-route-vehicleId="@item.VehicleId"
+                               class="btn btn-sm btn-success">
+                                AI tóm tắt
+                            </a>
+
+                            <a asp-controller="RepairOrders"
+                               asp-action="TotalCost"
+                               asp-route-id="@item.Id"
+                               class="btn btn-primary btn-sm">
+                                Tổng chi phí
+                            </a>
+
+                            @if (item.Status == "HoanThanh")
+                            {
+                                <form asp-controller="Invoices"
+                                      asp-action="Create"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="repairOrderId"
+                                           value="@item.Id" />
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success">
+                                        Lập / Xem hóa đơn
+                                    </button>
+                                </form>
+                            }
+
+
 
 
 </td>

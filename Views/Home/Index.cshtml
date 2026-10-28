@@ -1,1 +1,93 @@
-<h1>Hệ thống quản lý Garage AI</h1><p class="text-secondary">Bảng điều khiển quản lý garage sửa chữa ô tô</p><div class="row g-3 mt-3"><div class="col-md-4"><div class="card p-4"><h5>Khách hàng</h5><p>Quản lý thông tin khách hàng</p><a asp-controller="Customers" asp-action="Index">Mở danh sách →</a></div></div><div class="col-md-4"><div class="card p-4"><h5>Quản lý sửa chữa</h5><p>Đang phát triển</p></div></div><div class="col-md-4"><div class="card p-4"><h5>Trợ lý AI</h5><p>Đang phát triển</p></div></div></div>
+
+@{
+    ViewData["Title"] = "Tổng quan GarageAI";
+}
+
+<h2 class="mb-2">📊 Dashboard GarageAI</h2>
+<p class="text-secondary">
+    Tổng quan hoạt động garage sửa chữa ô tô
+</p>
+
+<div class="row g-3 mt-4">
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>👥 Khách hàng</h5>
+            <h2 class="text-primary">
+                @ViewBag.TotalCustomers
+            </h2>
+            <a asp-controller="Customers"
+               asp-action="Index">
+                Xem khách hàng
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>🚗 Tổng số xe</h5>
+            <h2 class="text-success">
+                @ViewBag.TotalVehicles
+            </h2>
+            <a asp-controller="Vehicles"
+               asp-action="Index">
+                Quản lý xe
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>📅 Lịch hẹn</h5>
+            <h2 class="text-info">
+                @ViewBag.TotalAppointments
+            </h2>
+            <a asp-controller="Appointments"
+               asp-action="Index">
+                Xem lịch hẹn
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>🔧 Tổng phiếu sửa chữa</h5>
+            <h2 class="text-primary">
+                @ViewBag.TotalRepairOrders
+            </h2>
+            <a asp-controller="RepairOrders"
+               asp-action="Index">
+                Xem phiếu sửa chữa
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>⚙️ Đang sửa chữa</h5>
+            <h2 class="text-warning">
+                @ViewBag.RepairingOrders
+            </h2>
+            <a asp-controller="RepairOrders"
+               asp-action="Index"
+               asp-route-status="DangSuaChua">
+                Xem phiếu đang sửa
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-sm-6">
+        <div class="card shadow-sm border-0 p-4 h-100">
+            <h5>✅ Đã hoàn thành</h5>
+            <h2 class="text-success">
+                @ViewBag.CompletedOrders
+            </h2>
+            <a asp-controller="RepairOrders"
+               asp-action="Index"
+               asp-route-status="HoanThanh">
+                Xem phiếu hoàn thành
+            </a>
+        </div>
+    </div>
+
+</div>

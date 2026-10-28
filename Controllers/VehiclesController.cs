@@ -4,9 +4,11 @@ using GarageAI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GarageAI.Controllers;
 
+[Authorize(Roles = "Admin,Employee")]
 public class VehiclesController : Controller
 {
     private readonly GarageDbContext _db;
